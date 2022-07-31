@@ -1,0 +1,48 @@
+---
+title: HDU-1532 Drainage Ditches（dinic最大流入门题）
+mathjax: true
+copyright: true
+date: 2019-08-10 15:12:37
+tags: [网络流,最大流,板子]
+categories: 题解
+---
+# 描述
+传送门：[HDU-532](http://acm.hdu.edu.cn/showproblem.php?pid=1532)
+
+>&emsp;Every time it rains on Farmer John's fields, a pond forms over Bessie's favorite clover patch. This means that the clover is covered by water for awhile and takes quite a long time to regrow. Thus, Farmer John has built a set of drainage ditches so that Bessie's clover patch is never covered in water. Instead, the water is drained to a nearby stream. Being an ace engineer, Farmer John has also installed regulators at the beginning of each ditch, so he can control at what rate water flows into that ditch. 
+Farmer John knows not only how many gallons of water each ditch can transport per minute but also the exact layout of the ditches, which feed out of the pond and into each other and stream in a potentially complex network. 
+Given all this information, determine the maximum rate at which water can be transported out of the pond and into the stream. For any given ditch, water flows in only one direction, but there might be a way that water can flow in a circle. 
+
+<!--more-->
+## Input
+> The input includes several cases. For each case, the first line contains two space-separated integers, $N (0 <= N <= 200)$ and $M (2 <= M <= 200)$. N is the number of ditches that Farmer John has dug. M is the number of intersections points for those ditches. Intersection 1 is the pond. Intersection point M is the stream. Each of the following N lines contains three integers, Si, Ei, and $C_i$. $S_i$ and $E_i (1 <= S_i, E_i <= M)$ designate the intersections between which this ditch flows. Water will flow through this ditch from $S_i$ to $E_i$. $C_i$ (0 <= C_i <= 10,000,000)$ is the maximum rate at which water will flow through the ditch.
+
+## Output
+> For each case, output a single integer, the maximum rate at which water may emptied from the pond. 
+
+## Examples
+* intput
+```c++
+5 4
+1 2 40
+1 4 20
+2 4 20
+2 3 30
+3 4 10
+```
+* output
+```c++
+50
+```
+
+# 大致题意
+给你一个图，求最大流。
+
+# 思路
+>* 就是求最大流的板子题，用dinic算法。
+>* 每次先用bfs对图进行分层，然后dfs找一条从s（源点）到t（汇点）的通路，再将这条路上的所有边的流量加上这条路上所有边中容量最小的值。
+
+# 代码
+```c++
+
+```

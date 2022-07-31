@@ -1,0 +1,101 @@
+---
+title: Hie with the Pie（Floyd+状压dp）
+mathjax: true
+copyright: true
+date: 2019-04-20 11:01:01
+tags: [状压dp,dp,动态规划,状压,最短路]
+categories: 题解
+---
+# 描述
+传送门：[poj-3311](http://poj.org/problem?id=3311)
+
+>&emsp;The Pizazz Pizzeria prides itself in delivering pizzas to its customers as fast as possible. Unfortunately, due to cutbacks, they can afford to hire only one driver to do the deliveries. He will wait for 1 or more (up to 10) orders to be processed before he starts any deliveries. Needless to say, he would like to take the shortest route in delivering these goodies and returning to the pizzeria, even if it means passing the same location(s) or the pizzeria more than once on the way. He has commissioned you to write a program to help him.
+
+<!--more-->
+## Input
+>Input will consist of multiple test cases. The first line will contain a single integer n indicating the number of orders to deliver, where 1 ≤ n ≤ 10. After this will be n + 1 lines each containing n + 1 integers indicating the times to travel between the pizzeria (numbered 0) and the n locations (numbers 1 to n). The jth value on the ith line indicates the time to go directly from location i to location j without visiting any other locations along the way. Note that there may be quicker ways to go from i to j via other locations, due to different speed limits, traffic lights, etc. Also, the time values may not be symmetric, i.e., the time to go directly from location i to j may not be the same as the time to go directly from location j to i. An input value of n = 0 will terminate input.
+
+## Output
+> For each test case, you should output a single number indicating the minimum time to deliver all of the pizzas and return to the pizzeria.
+
+## Examples
+* intput
+```c++
+3
+0 1 10 10
+1 0 1 2
+10 1 0 10
+10 2 10 0
+0
+```
+* output
+```c++
+8
+```
+
+# 题目大意
+> 给你一个有$n+1$，$(1<=n<=10)$个点的有向完全图，用矩阵的形式给出任意两个不同点之间的距离。（其中从$i$到$j$的距离不一定等于从$j$到$i$的距离）现在要你求出从$0$号点出发，走过$1$到$n$号点至少一次，然后再回到$0$号点所花的最小时间。
+
+# 思路
+>* 先用floyd $O(n^3)$预处理出任意两个点之间的最短距离。
+>* 用一个11位的二进制数表示状态，1表示要经过这个点，0表示不经过。
+>* $dp[state][j]$: 在$state$状态下$0$点到达$j$点的最短路。如果state状态里面经过了i，并且没有经过j，那么就能通过dp[state][i]更新dp[state|(1<<j)][j]。
+>* 这道题的状态和状态转移方程和[zoj-3471](http://x-armin.com/Most-Powerful/)很像：
+$$dp[state|(1<<j)][j]=min(dp[state|(1<<j)][j],dp[state][i]+Map[i][j]);$$
+
+# 代码
+```c++
+/*
+Problem: 3311		User: Armin
+Memory: 396K		Time: 0MS
+Language: G++		Result: Accepted  
+*/
+#include<stdio.h>
+#include<algorithm>
+using namespace std;
+#define rep(i,a,n) for(int i=a;i<n;i++)
+#define repd(i,a,n) for(int i=n-1;i>=a;i--)
+#define CRL(a,x) memset(a,x,sizeof(a))
+#define Max 0x3f3f3f
+const int N=11;
+
+int Map[N][N],dp[1<<N][N],n;
+
+int main()
+{
+    while(scanf("%d",&n),n++){
+        rep(i,0,n)
+            rep(j,0,n)
+                scanf("%d",&Map[i][j]);
+
+        rep(k,0,n)              //floy预处理出任意两个点之间的最短距离
+            rep(i,0,n)
+                rep(j,0,n)
+                    if(Map[i][j]>Map[i][k]+Map[k][j])
+                        Map[i][j]=Map[i][k]+Map[k][j];
+
+        rep(i,0,1<<n)           //初始化成无穷大
+            rep(j,0,n)
+                dp[i][j]=Max;
+        dp[0][0]=0;             //0点在0状态到0点的距离为0
+        
+        rep(state,0,1<<n)
+            rep(i,0,n){
+                if(dp[state][i]==Max) continue;     //剪枝：只有当dp[state][i]不等于Max时才可能更新
+                if(i&&state==(1<<i))                //如果state状态只经过了i一个点，注意这里要把i==0的情况去点，因为i==0在33行已经处理了，这里1<<0 ==1 !=0 所以这里里更新会出错。
+                    dp[state][i]=Map[0][i];
+                else
+                    rep(j,0,n)
+                        if(((1<<j)&state)==0)       //如果没经过j城市
+                            dp[state|(1<<j)][j]=min(dp[state|(1<<j)][j],dp[state][i]+Map[i][j]);
+            }
+
+        int ans=Max;
+
+        rep(i,1,n) ans=min(ans,dp[(1<<n)-1][i]+Map[i][0]);      //找最优解+回来的路
+        printf("%d\n",ans);
+    }
+    return 0;
+}
+
+```
